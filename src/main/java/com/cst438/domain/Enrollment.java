@@ -15,7 +15,7 @@ public class Enrollment {
     private Section section;
     @ManyToOne
     @JoinColumn(name="user_id", nullable = false)
-    private User user;
+    private User student;
 
     public int getEnrollmentId() {return this.enrollmentId;}
     public void setEnrollmentId(int enrollmentId) {this.enrollmentId = enrollmentId;}
@@ -23,9 +23,10 @@ public class Enrollment {
     public void setGrade(String grade) {this.grade = grade;}
     public Section getSection() {return this.section;}
     public void setSection(Section section) {this.section = section;}
-    public User getUser() {return this.user;}
-    public void setUser(User user) {this.user = user;}
-
+//    public User getUser() {return this.user;}
+//    public void setUser(User user) {this.user = user;}
+    public User getStudent() {return this.student;}
+    public void setStudent(User student) {this.student = student;}
 
 
 	// DONE complete this class
