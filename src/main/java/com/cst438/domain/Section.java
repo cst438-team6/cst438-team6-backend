@@ -26,13 +26,13 @@ public class Section {
     @Column(name="instructor_email")
     private String instructorEmail;
 
-    // TODO  uncomment the following lines
+    // DONE  uncomment the following lines
 
-//    @OneToMany(mappedBy="section")
-//    List<Enrollment> enrollments;
+    @OneToMany(mappedBy="section")
+    List<Enrollment> enrollments;
 
-//    @OneToMany(mappedBy="section")
-//    List<Assignment> assignments;
+    @OneToMany(mappedBy="section")
+    List<Assignment> assignments;
 
     public int getSectionNo() {
         return sectionNo;
