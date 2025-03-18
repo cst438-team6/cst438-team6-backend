@@ -9,8 +9,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class GradeController {
     @Autowired
     GradeRepository gradeRepository;
@@ -21,13 +23,20 @@ public class GradeController {
     @Autowired
     EnrollmentRepository enrollmentRepository;
 
-    // instructor gets grades for assignment ordered by student name
-    // user must be instructor for the section
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private GradeRepository gradeRepository;
+
+    @Autowired
+    private AssignmentRepository assignmentRepository;
+
     /**
-     instructor lists the grades for an assignment for all enrolled students
-     returns the list of grades (ordered by student name) for the assignment
-     if there is no grade entity for an enrolled student, a grade entity with null grade is created
-     logged in user must be the instructor for the section (assignment 7)
+     * Instructor lists the grades for an assignment for all enrolled students.
+     * Returns the list of grades (ordered by student name) for the assignment.
+     * If there is no Grade entity for an enrolled student, a Grade entity with a null score is created.
+     * Logged-in user must be the instructor for the section.
      */
     @GetMapping("/assignments/{assignmentId}/grades")
     public List<GradeDTO> getAssignmentGrades(@PathVariable("assignmentId") int assignmentId) {
@@ -57,12 +66,10 @@ public class GradeController {
         }
     }
 
-    // instructor uploads grades for assignment
-    // user must be instructor for the section
     /**
-     instructor updates one or more assignment grades
-     only the score attribute of grade entity can be changed
-     logged in user must be the instructor for the section (assignment 7)
+     * Instructor updates one or more assignment grades.
+     * Only the score attribute of the Grade entity can be changed.
+     * Logged-in user must be the instructor for the section.
      */
     @PutMapping("/grades")
     public void updateGrades(@RequestBody List<GradeDTO> dlist) {
@@ -76,5 +83,4 @@ public class GradeController {
             }
         }
     }
-
 }
