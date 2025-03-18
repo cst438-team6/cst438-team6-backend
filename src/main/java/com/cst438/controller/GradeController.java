@@ -1,12 +1,25 @@
 package com.cst438.controller;
 
+import com.cst438.domain.*;
 import com.cst438.dto.GradeDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 public class GradeController {
+    @Autowired
+    GradeRepository gradeRepository;
+
+    @Autowired
+    AssignmentRepository assignmentRepository;
+
+    @Autowired
+    EnrollmentRepository enrollmentRepository;
 
     // instructor gets grades for assignment ordered by student name
     // user must be instructor for the section
@@ -18,16 +31,30 @@ public class GradeController {
      */
     @GetMapping("/assignments/{assignmentId}/grades")
     public List<GradeDTO> getAssignmentGrades(@PathVariable("assignmentId") int assignmentId) {
-
-        // TODO remove the following line when done
-
-        // get the list of enrollments for the section related to this assignment.
-        // hint: use te enrollment repository method findEnrollmentsBySectionOrderByStudentName.
-        // for each enrollment, get the grade related to the assignment and enrollment
-        // hint: use the gradeRepository findByEnrollmentIdAndAssignmentId method.
-
-
-        return null;
+        Assignment a = assignmentRepository.findById(assignmentId).orElse(null);
+        if (a==null) {
+            throw  new ResponseStatusException( HttpStatus.NOT_FOUND, "assignment not found "+assignmentId);
+        } else {
+            List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(a.getSection().getSectionNo());
+            List<GradeDTO> dto_list1 = new ArrayList<>();
+            for (Enrollment e : enrollments) {
+                Grade g = gradeRepository.findByEnrollmentIdAndAssignmentId(e.getEnrollmentId(), assignmentId);
+                if (g==null) {
+                    g = new Grade();
+                    g.setAssignment(a);
+                    g.setEnrollment(e);
+                }
+                dto_list1.add(new GradeDTO(
+                        g.getGradeId(),
+                        g.getEnrollment().getStudent().getName(),
+                        g.getEnrollment().getStudent().getEmail(),
+                        g.getEnrollment().getSection().getCourse().getTitle(),
+                        g.getEnrollment().getSection().getCourse().getCourseId(),
+                        g.getEnrollment().getSection().getSecId(),
+                        g.getScore()));
+            }
+            return dto_list1;
+        }
     }
 
     // instructor uploads grades for assignment
@@ -39,12 +66,15 @@ public class GradeController {
      */
     @PutMapping("/grades")
     public void updateGrades(@RequestBody List<GradeDTO> dlist) {
-
-        // TODO
-
-        // for each grade in the GradeDTO list, retrieve the grade entity
-        // update the score and save the entity
-
+        for (GradeDTO gDTO : dlist) {
+            Grade g = gradeRepository.findById(gDTO.gradeId()).orElse(null);
+            if (g==null) {
+                throw  new ResponseStatusException( HttpStatus.NOT_FOUND, "enrollment not found "+gDTO.gradeId());
+            } else {
+                g.setScore(gDTO.score());
+                gradeRepository.save(g);
+            }
+        }
     }
 
 }
