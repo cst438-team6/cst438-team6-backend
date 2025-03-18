@@ -6,41 +6,69 @@ import com.cst438.dto.EnrollmentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 public class StudentController {
 
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
 
+    @Autowired
+    private AssignmentRepository assignmentRepository;
+
+    @Autowired
+    private GradeRepository gradeRepository;
 
     /**
-     students lists there enrollments given year and semester value
-     returns list of enrollments, may be empty
-     logged in user must be the student (assignment 7)
+     * Students list their enrollments given year and semester value.
+     * Returns a list of enrollments, may be empty.
+     * Logged in user must be the student (assignment 7).
      */
-   @GetMapping("/enrollments")
-   public List<EnrollmentDTO> getSchedule(
-           @RequestParam("year") int year,
-           @RequestParam("semester") String semester,
-           @RequestParam("studentId") int studentId) {
+    @GetMapping("/enrollments")
+    public List<EnrollmentDTO> getSchedule(
+            @RequestParam("year") int year,
+            @RequestParam("semester") String semester,
+            @RequestParam("studentId") int studentId) {
 
+        // Fetch the list of enrollments for the student for the given year and semester
+        List<Enrollment> enrollments = enrollmentRepository.findByYearAndSemesterOrderByCourseId(year, semester, studentId);
 
-     // TODO
-	 //  hint: use enrollment repository method findByYearAndSemesterOrderByCourseId
-     //  remove the following line when done
-       return null;
-   }
+        List<EnrollmentDTO> enrollmentDTOs = new ArrayList<>();
+
+        // Map each Enrollment to an EnrollmentDTO
+        for (Enrollment enrollment : enrollments) {
+            Section section = enrollment.getSection();
+            EnrollmentDTO enrollmentDTO = new EnrollmentDTO(
+                    enrollment.getEnrollmentId(),
+                    enrollment.getGrade(),
+                    enrollment.getStudent().getId(),
+                    enrollment.getStudent().getName(),
+                    enrollment.getStudent().getEmail(),
+                    section.getCourse().getCourseId(),
+                    section.getCourse().getTitle(),
+                    section.getSectionNo(),
+                    section.getSectionNo(),
+                    section.getBuilding(),
+                    section.getRoom(),
+                    section.getTimes(),
+                    section.getCourse().getCredits(),
+                    section.getTerm().getYear(),
+                    section.getTerm().getSemester()
+            );
+            enrollmentDTOs.add(enrollmentDTO);
+        }
+
+        return enrollmentDTOs;
+    }
 
     /**
-     students lists there assignments given year and semester value
-     returns list of assignments may be empty
-     logged in user must be the student (assignment 7)
+     * Students list their assignments given year and semester value.
+     * Returns a list of assignments, may be empty.
+     * Logged in user must be the student (assignment 7).
      */
     @GetMapping("/assignments")
     public List<AssignmentStudentDTO> getStudentAssignments(
@@ -48,13 +76,37 @@ public class StudentController {
             @RequestParam("year") int year,
             @RequestParam("semester") String semester) {
 
-        // TODO remove the following line when done
+        // Fetch the list of enrollments for the student based on year and semester
+        List<Enrollment> enrollments = enrollmentRepository.findByYearAndSemesterOrderByCourseId(year, semester, studentId);
 
-        // return a list of assignments and (if they exist) the assignment grade
-        //  for all sections that the student is enrolled for the given year and semester
-        //  hint: use the assignment repository method findByStudentIdAndYearAndSemesterOrderByDueDate
+        List<AssignmentStudentDTO> assignmentDTOs = new ArrayList<>();
 
-        return null;
+        // For each enrollment, find the assignments related to the section
+        for (Enrollment enrollment : enrollments) {
+            Section section = enrollment.getSection();
+            List<Assignment> assignments = assignmentRepository.findByStudentIdAndYearAndSemesterOrderByDueDate(studentId, year, semester);
+
+            // For each assignment, check if there is a grade associated with the student
+            for (Assignment assignment : assignments) {
+                Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.getEnrollmentId(), assignment.getAssignmentId());
+
+                // If grade is not found, it means the student doesn't have a grade yet
+                Integer gradeScore = (grade != null) ? grade.getScore() : null;
+
+                // Create the AssignmentStudentDTO object using the constructor matching the record fields
+                AssignmentStudentDTO assignmentDTO = new AssignmentStudentDTO(
+                        assignment.getAssignmentId(),
+                        assignment.getTitle(),
+                        assignment.getDueDate(),
+                        section.getCourse().getCourseId(),
+                        section.getSectionNo(),
+                        gradeScore
+                );
+
+                assignmentDTOs.add(assignmentDTO);
+            }
+        }
+
+        return assignmentDTOs;
     }
-
 }
