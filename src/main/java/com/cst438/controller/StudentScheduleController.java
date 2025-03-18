@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -25,10 +26,10 @@ public class StudentScheduleController {
 
 
     /**
-     students lists their transcript containing all enrollments
-     returns list of enrollments in chronological order
-     logged in user must be the student (assignment 7)
-     example URL  /transcript?studentId=19803
+     * students lists their transcript containing all enrollments
+     * returns list of enrollments in chronological order
+     * logged in user must be the student (assignment 7)
+     * example URL  /transcript?studentId=19803
      */
     @GetMapping("/transcripts")
     public List<EnrollmentDTO> getTranscript(@RequestParam("studentId") int studentId) {
@@ -60,14 +61,14 @@ public class StudentScheduleController {
 
 
     /**
-     students enrolls into a section of a course
-     returns the enrollment data including primary key
-     logged in user must be the student (assignment 7)
+     * students enrolls into a section of a course
+     * returns the enrollment data including primary key
+     * logged in user must be the student (assignment 7)
      */
     @PostMapping("/enrollments/sections/{sectionNo}")
     public EnrollmentDTO addCourse(
             @PathVariable int sectionNo,
-            @RequestParam("studentId") int studentId ) {
+            @RequestParam("studentId") int studentId) {
 
         // TODO
 
@@ -80,7 +81,7 @@ public class StudentScheduleController {
         // remove the following line when done.
 
         Section s = sectionRepository.findById(sectionNo).orElse(null);
-        if (s==null) {
+        if (s == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "section not found " + sectionNo);
         }
         LocalDate dateNow = LocalDate.now();
@@ -128,8 +129,8 @@ public class StudentScheduleController {
 
 
     /**
-     students drops an enrollment for a section
-     logged in user must be the student (assignment 7)
+     * students drops an enrollment for a section
+     * logged in user must be the student (assignment 7)
      */
     @DeleteMapping("/enrollments/{enrollmentId}")
     public void dropCourse(@PathVariable("enrollmentId") int enrollmentId) {
@@ -137,7 +138,7 @@ public class StudentScheduleController {
         // TODO
         // check that today is not after the dropDeadline for section
         Enrollment e = enrollmentRepository.findById(enrollmentId).orElse(null);
-        if (e==null) {
+        if (e == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "enrollment not found " + enrollmentId);
         }
 

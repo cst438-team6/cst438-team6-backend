@@ -23,21 +23,21 @@ public class UserController {
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     /**
-     list all users
+     * list all users
      */
     @GetMapping("/users")
     public List<UserDTO> findAllUsers() {
 
         List<User> users = userRepository.findAllByOrderByIdAsc();
         List<UserDTO> userDTO_list = new ArrayList<>();
-        for (User u: users) {
+        for (User u : users) {
             userDTO_list.add(new UserDTO(u.getId(), u.getName(), u.getEmail(), u.getType()));
         }
         return userDTO_list;
     }
 
     /**
-     Admin creates a user
+     * Admin creates a user
      */
     @PostMapping("/users")
     public UserDTO createUser(@RequestBody UserDTO userDTO) {
@@ -46,7 +46,7 @@ public class UserController {
         user.setEmail(userDTO.email());
 
         // create password and encrypt it
-        String password = userDTO.name()+"2024";
+        String password = userDTO.name() + "2024";
         String enc_password = encoder.encode(password);
         user.setPassword(enc_password);
 
@@ -55,20 +55,20 @@ public class UserController {
                 !userDTO.type().equals("INSTRUCTOR") &&
                 !userDTO.type().equals("ADMIN")) {
             // invalid type
-            throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "invalid user type");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid user type");
         }
         userRepository.save(user);
         return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
     }
 
     /**
-     Admin update a user's name, email or type
+     * Admin update a user's name, email or type
      */
     @PutMapping("/users")
     public UserDTO updateUser(@RequestBody UserDTO userDTO) {
         User user = userRepository.findById(userDTO.id()).orElse(null);
-        if (user==null) {
-            throw  new ResponseStatusException( HttpStatus.NOT_FOUND, "user id not found");
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user id not found");
         }
         user.setName(userDTO.name());
         user.setEmail(userDTO.email());
@@ -77,19 +77,19 @@ public class UserController {
                 !userDTO.type().equals("INSTRUCTOR") &&
                 !userDTO.type().equals("ADMIN")) {
             // invalid type
-            throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "invalid user type");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid user type");
         }
         userRepository.save(user);
         return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
     }
 
     /**
-     Admin delete a user
+     * Admin delete a user
      */
     @DeleteMapping("/users/{id}")
-    public void  updateUser(@PathVariable("id") int id) {
+    public void updateUser(@PathVariable("id") int id) {
         User user = userRepository.findById(id).orElse(null);
-        if (user!=null) {
+        if (user != null) {
             userRepository.delete(user);
         }
 

@@ -54,8 +54,8 @@ public class CourseController {
     @PutMapping("/courses")
     public CourseDTO updateCourse(@RequestBody CourseDTO course) {
         Course c = courseRepository.findById(course.courseId()).orElse(null);
-        if (c==null) {
-            throw  new ResponseStatusException( HttpStatus.NOT_FOUND, "course not found "+course.courseId());
+        if (c == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found " + course.courseId());
         } else {
             c.setTitle(course.title());
             c.setCredits(course.credits());
@@ -74,7 +74,7 @@ public class CourseController {
     public void deleteCourse(@PathVariable String courseid) {
         Course c = courseRepository.findById(courseid).orElse(null);
         // if course does not exist, do nothing.
-        if (c!=null) {
+        if (c != null) {
             courseRepository.delete(c);
         }
     }

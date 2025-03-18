@@ -42,7 +42,7 @@ public class SectionControllerUnitTest {
                 2024,
                 "Spring",
                 "cst499",
-                "", 
+                "",
                 1,
                 "052",
                 "104",
@@ -60,8 +60,8 @@ public class SectionControllerUnitTest {
                                 .accept(MediaType.APPLICATION_JSON)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(asJsonString(section)))
-                        .andReturn()
-                        .getResponse();
+                .andReturn()
+                .getResponse();
 
         // check the response code for 200 meaning OK
         assertEquals(200, response.getStatus());
@@ -82,7 +82,7 @@ public class SectionControllerUnitTest {
         // clean up after test. issue http DELETE request for section
         response = mvc.perform(
                         MockMvcRequestBuilders
-                                .delete("/sections/"+result.secNo()))
+                                .delete("/sections/" + result.secNo()))
                 .andReturn()
                 .getResponse();
 
@@ -94,7 +94,7 @@ public class SectionControllerUnitTest {
     }
 
     @Test
-    public void addSectionFailsBadCourse( ) throws Exception {
+    public void addSectionFailsBadCourse() throws Exception {
 
         MockHttpServletResponse response;
 
@@ -104,7 +104,7 @@ public class SectionControllerUnitTest {
                 2024,
                 "Spring",
                 "cst599",
-                "", 
+                "",
                 1,
                 "052",
                 "104",
@@ -140,7 +140,7 @@ public class SectionControllerUnitTest {
         }
     }
 
-    private static <T> T  fromJsonString(String str, Class<T> valueType ) {
+    private static <T> T fromJsonString(String str, Class<T> valueType) {
         try {
             return new ObjectMapper().readValue(str, valueType);
         } catch (Exception e) {
