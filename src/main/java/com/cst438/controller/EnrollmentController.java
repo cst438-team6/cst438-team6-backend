@@ -26,11 +26,11 @@ public class EnrollmentController {
     @GetMapping("/sections/{sectionNo}/enrollments")
     public List<EnrollmentDTO> getEnrollments(@PathVariable("sectionNo") int sectionNo) {
         List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo);
-        
+
         if (enrollments.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No enrollments found for section " + sectionNo);
         }
-        
+
         return enrollments.stream()
                 .map(enrollment -> {
                     var section = enrollment.getSection();
@@ -38,21 +38,21 @@ public class EnrollmentController {
                     var term = section.getTerm();
 
                     return new EnrollmentDTO(
-                        enrollment.getEnrollmentId(),
-                        enrollment.getGrade(),
-                        enrollment.getStudent().getId(),
-                        enrollment.getStudent().getName(),
-                        enrollment.getStudent().getEmail(),
-                        course.getCourseId(),
-                        course.getTitle(),
-                        section.getSecId(),
-                        section.getSectionNo(),
-                        section.getBuilding(),
-                        section.getRoom(),
-                        section.getTimes(),
-                        course.getCredits(),
-                        term.getYear(),
-                        term.getSemester()
+                            enrollment.getEnrollmentId(),
+                            enrollment.getGrade(),
+                            enrollment.getStudent().getId(),
+                            enrollment.getStudent().getName(),
+                            enrollment.getStudent().getEmail(),
+                            course.getCourseId(),
+                            course.getTitle(),
+                            section.getSecId(),
+                            section.getSectionNo(),
+                            section.getBuilding(),
+                            section.getRoom(),
+                            section.getTimes(),
+                            course.getCredits(),
+                            term.getYear(),
+                            term.getSemester()
                     );
                 })
                 .collect(Collectors.toList());
@@ -62,7 +62,7 @@ public class EnrollmentController {
      * Instructor updates enrollment grades.
      * Only the grade attribute of enrollment can be changed.
      * The logged-in user must be the instructor for the section.
-     */ 
+     */
     @PutMapping("/enrollments")
     public void updateEnrollmentGrade(@RequestBody List<EnrollmentDTO> dlist) {
         for (EnrollmentDTO dto : dlist) {

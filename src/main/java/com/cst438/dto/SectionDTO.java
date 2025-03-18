@@ -17,5 +17,5 @@ public record SectionDTO(
         String instructorName,
         String instructorEmail
 
-       ) {
+) {
 }

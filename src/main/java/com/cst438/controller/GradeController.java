@@ -41,14 +41,14 @@ public class GradeController {
     @GetMapping("/assignments/{assignmentId}/grades")
     public List<GradeDTO> getAssignmentGrades(@PathVariable("assignmentId") int assignmentId) {
         Assignment a = assignmentRepository.findById(assignmentId).orElse(null);
-        if (a==null) {
-            throw  new ResponseStatusException( HttpStatus.NOT_FOUND, "assignment not found "+assignmentId);
+        if (a == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "assignment not found " + assignmentId);
         } else {
             List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(a.getSection().getSectionNo());
             List<GradeDTO> dto_list1 = new ArrayList<>();
             for (Enrollment e : enrollments) {
                 Grade g = gradeRepository.findByEnrollmentIdAndAssignmentId(e.getEnrollmentId(), assignmentId);
-                if (g==null) {
+                if (g == null) {
                     g = new Grade();
                     g.setAssignment(a);
                     g.setEnrollment(e);
@@ -75,8 +75,8 @@ public class GradeController {
     public void updateGrades(@RequestBody List<GradeDTO> dlist) {
         for (GradeDTO gDTO : dlist) {
             Grade g = gradeRepository.findById(gDTO.gradeId()).orElse(null);
-            if (g==null) {
-                throw  new ResponseStatusException( HttpStatus.NOT_FOUND, "enrollment not found "+gDTO.gradeId());
+            if (g == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "enrollment not found " + gDTO.gradeId());
             } else {
                 g.setScore(gDTO.score());
                 gradeRepository.save(g);

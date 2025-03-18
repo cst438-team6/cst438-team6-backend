@@ -1,4 +1,5 @@
 package com.cst438.dto;
+
 /*
  * Data Transfer Object for student enrollment data for a section of a course
  */
