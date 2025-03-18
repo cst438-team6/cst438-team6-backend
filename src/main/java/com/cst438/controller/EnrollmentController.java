@@ -62,7 +62,7 @@ public class EnrollmentController {
      * Instructor updates enrollment grades.
      * Only the grade attribute of enrollment can be changed.
      * The logged-in user must be the instructor for the section.
-     */
+     */ 
     @PutMapping("/enrollments")
     public void updateEnrollmentGrade(@RequestBody List<EnrollmentDTO> dlist) {
         for (EnrollmentDTO dto : dlist) {
