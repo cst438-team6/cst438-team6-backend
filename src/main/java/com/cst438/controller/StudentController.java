@@ -34,12 +34,10 @@ public class StudentController {
             @RequestParam("semester") String semester,
             @RequestParam("studentId") int studentId) {
 
-        // Fetch the list of enrollments for the student for the given year and semester
         List<Enrollment> enrollments = enrollmentRepository.findByYearAndSemesterOrderByCourseId(year, semester, studentId);
 
         List<EnrollmentDTO> enrollmentDTOs = new ArrayList<>();
 
-        // Map each Enrollment to an EnrollmentDTO
         for (Enrollment enrollment : enrollments) {
             Section section = enrollment.getSection();
             EnrollmentDTO enrollmentDTO = new EnrollmentDTO(
@@ -76,24 +74,19 @@ public class StudentController {
             @RequestParam("year") int year,
             @RequestParam("semester") String semester) {
 
-        // Fetch the list of enrollments for the student based on year and semester
         List<Enrollment> enrollments = enrollmentRepository.findByYearAndSemesterOrderByCourseId(year, semester, studentId);
 
         List<AssignmentStudentDTO> assignmentDTOs = new ArrayList<>();
 
-        // For each enrollment, find the assignments related to the section
         for (Enrollment enrollment : enrollments) {
             Section section = enrollment.getSection();
             List<Assignment> assignments = assignmentRepository.findByStudentIdAndYearAndSemesterOrderByDueDate(studentId, year, semester);
 
-            // For each assignment, check if there is a grade associated with the student
             for (Assignment assignment : assignments) {
                 Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.getEnrollmentId(), assignment.getAssignmentId());
 
-                // If grade is not found, it means the student doesn't have a grade yet
                 Integer gradeScore = (grade != null) ? grade.getScore() : null;
 
-                // Create the AssignmentStudentDTO object using the constructor matching the record fields
                 AssignmentStudentDTO assignmentDTO = new AssignmentStudentDTO(
                         assignment.getAssignmentId(),
                         assignment.getTitle(),
