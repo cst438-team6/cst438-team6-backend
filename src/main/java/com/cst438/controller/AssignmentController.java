@@ -28,6 +28,7 @@ public class AssignmentController {
      * Assignment data is returned ordered by due date.
      * Logged in user must be the instructor for the section (assignment 7).
      */
+
     @GetMapping("/sections/{secNo}/assignments")
     public List<AssignmentDTO> getAssignments(@PathVariable("secNo") int secNo) {
         // Check if the section exists
@@ -51,6 +52,8 @@ public class AssignmentController {
      * Assignment data with primary key is returned.
      * Logged in user must be the instructor for the section (assignment 7).
      */
+
+
     @PostMapping("/assignments")
     public AssignmentDTO createAssignment(@RequestBody AssignmentDTO dto) {
         // Check if the section exists
@@ -79,6 +82,8 @@ public class AssignmentController {
      * Updated assignment data is returned.
      * Logged in user must be the instructor for the section (assignment 7).
      */
+
+
     @PutMapping("/assignments")
     public AssignmentDTO updateAssignment(@RequestBody AssignmentDTO dto) {
         Assignment assignment = assignmentRepository.findById(dto.getAssignmentId())
@@ -98,6 +103,7 @@ public class AssignmentController {
         );
     }
 
+
     /**
      * Instructor deletes an assignment for a section.
      * Logged in user must be the instructor for the section (assignment 7).
@@ -110,5 +116,4 @@ public class AssignmentController {
         // Delete the assignment
         assignmentRepository.delete(assignment);
     }
-}
 }

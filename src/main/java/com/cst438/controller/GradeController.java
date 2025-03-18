@@ -23,15 +23,6 @@ public class GradeController {
     @Autowired
     EnrollmentRepository enrollmentRepository;
 
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
-
-    @Autowired
-    private GradeRepository gradeRepository;
-
-    @Autowired
-    private AssignmentRepository assignmentRepository;
-
     /**
      * Instructor lists the grades for an assignment for all enrolled students.
      * Returns the list of grades (ordered by student name) for the assignment.
