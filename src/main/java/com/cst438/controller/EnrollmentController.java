@@ -1,52 +1,77 @@
 package com.cst438.controller;
 
-
+import com.cst438.domain.Enrollment;
+import com.cst438.domain.EnrollmentRepository;
 import com.cst438.dto.EnrollmentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 public class EnrollmentController {
 
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
 
     /**
-     instructor gets list of enrollments for a section
-     list of enrollments returned is in order by student name
-     logged in user must be the instructor for the section (assignment 7)
+     * Instructor gets list of enrollments for a section.
+     * The list is returned in order by student name.
+     * The logged-in user must be the instructor for the section.
      */
     @GetMapping("/sections/{sectionNo}/enrollments")
-    public List<EnrollmentDTO> getEnrollments(
-            @PathVariable("sectionNo") int sectionNo ) {
+    public List<EnrollmentDTO> getEnrollments(@PathVariable("sectionNo") int sectionNo) {
+        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo);
+        
+        if (enrollments.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No enrollments found for section " + sectionNo);
+        }
+        
+        return enrollments.stream()
+                .map(enrollment -> {
+                    var section = enrollment.getSection();
+                    var course = section.getCourse();
+                    var term = section.getTerm();
 
-        // TODO
-		//  hint: use enrollment repository findEnrollmentsBySectionNoOrderByStudentName method
-        //  remove the following line when done
-
-        return null;
+                    return new EnrollmentDTO(
+                        enrollment.getEnrollmentId(),
+                        enrollment.getGrade(),
+                        enrollment.getStudent().getId(),
+                        enrollment.getStudent().getName(),
+                        enrollment.getStudent().getEmail(),
+                        course.getCourseId(),
+                        course.getTitle(),
+                        section.getSecId(),
+                        section.getSectionNo(),
+                        section.getBuilding(),
+                        section.getRoom(),
+                        section.getTimes(),
+                        course.getCredits(),
+                        term.getYear(),
+                        term.getSemester()
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
-    // instructor uploads enrollments with the final grades for the section
-    // user must be instructor for the section
     /**
-     instructor updates enrollment grades
-     only the grade attribute of enrollment can be changed
-     logged in user must be the instructor for the section (assignment 7)
+     * Instructor updates enrollment grades.
+     * Only the grade attribute of enrollment can be changed.
+     * The logged-in user must be the instructor for the section.
      */
     @PutMapping("/enrollments")
     public void updateEnrollmentGrade(@RequestBody List<EnrollmentDTO> dlist) {
+        for (EnrollmentDTO dto : dlist) {
+            Enrollment enrollment = enrollmentRepository.findById(dto.enrollmentId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Enrollment ID " + dto.enrollmentId() + " not found"));
 
-        // TODO
-
-        // For each EnrollmentDTO in the list
-        //  find the Enrollment entity using enrollmentId
-        //  update the grade and save back to database
-
+            enrollment.setGrade(dto.grade());
+            enrollmentRepository.save(enrollment);
+        }
     }
-
 }
