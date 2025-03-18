@@ -1,78 +1,114 @@
 package com.cst438.controller;
 
-import com.cst438.domain.*;
 import com.cst438.dto.AssignmentDTO;
-import com.cst438.dto.AssignmentStudentDTO;
-import com.cst438.dto.GradeDTO;
+import com.cst438.domain.Assignment;
+import com.cst438.domain.Section;
+import com.cst438.domain.AssignmentRepository;
+import com.cst438.domain.SectionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 public class AssignmentController {
 
+    @Autowired
+    private AssignmentRepository assignmentRepository;
+
+    @Autowired
+    private SectionRepository sectionRepository;
+
     /**
-     instructor lists assignments for a section.
-     Assignment data is returned ordered by due date.
-     logged in user must be the instructor for the section (assignment 7)
+     * Instructor lists assignments for a section.
+     * Assignment data is returned ordered by due date.
+     * Logged in user must be the instructor for the section (assignment 7).
      */
     @GetMapping("/sections/{secNo}/assignments")
-    public List<AssignmentDTO> getAssignments(
-            @PathVariable("secNo") int secNo) {
-		
-		// hint: use the assignment repository method 
-		//  findBySectionNoOrderByDueDate to return 
-		//  a list of assignments
+    public List<AssignmentDTO> getAssignments(@PathVariable("secNo") int secNo) {
+        // Check if the section exists
+        Section section = sectionRepository.findById(secNo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
 
-        // TODO remove the following line when done
-        return null;
+        // Retrieve assignments for the section ordered by due date
+        List<Assignment> assignments = assignmentRepository.findBySectionNoOrderByDueDate(secNo);
+        return assignments.stream()
+                .map(a -> new AssignmentDTO(
+                        a.getAssignmentId(),
+                        a.getTitle(),
+                        a.getDueDate(),
+                        section.getSecNo()
+                ))
+                .collect(Collectors.toList());
     }
 
     /**
-     instructor creates an assignment for a section.
-     Assignment data with primary key is returned.
-     logged in user must be the instructor for the section (assignment 7)
+     * Instructor creates an assignment for a section.
+     * Assignment data with primary key is returned.
+     * Logged in user must be the instructor for the section (assignment 7).
      */
     @PostMapping("/assignments")
-    public AssignmentDTO createAssignment(
-            @RequestBody AssignmentDTO dto) {
+    public AssignmentDTO createAssignment(@RequestBody AssignmentDTO dto) {
+        // Check if the section exists
+        Section section = sectionRepository.findById(dto.getSectionNo())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
 
-        // TODO remove the following line when done
+        // Create a new assignment entity
+        Assignment assignment = new Assignment();
+        assignment.setTitle(dto.getTitle());
+        assignment.setDueDate(dto.getDueDate());
+        assignment.setSection(section);
 
-        return null;
+        // Save the assignment and return the created AssignmentDTO
+        assignment = assignmentRepository.save(assignment);
+        return new AssignmentDTO(
+                assignment.getAssignmentId(),
+                assignment.getTitle(),
+                assignment.getDueDate(),
+                assignment.getSection().getSecNo()
+        );
     }
 
     /**
-     instructor updates an assignment for a section.
-     only title and dueDate may be changed
-     updated assignment data is returned
-     logged in user must be the instructor for the section (assignment 7)
+     * Instructor updates an assignment for a section.
+     * Only title and dueDate may be changed.
+     * Updated assignment data is returned.
+     * Logged in user must be the instructor for the section (assignment 7).
      */
     @PutMapping("/assignments")
     public AssignmentDTO updateAssignment(@RequestBody AssignmentDTO dto) {
+        Assignment assignment = assignmentRepository.findById(dto.getAssignmentId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
 
-        // TODO remove the following line when done
+        // Update the title and dueDate
+        assignment.setTitle(dto.getTitle());
+        assignment.setDueDate(dto.getDueDate());
 
-        return null;
+        // Save the updated assignment and return the updated AssignmentDTO
+        assignment = assignmentRepository.save(assignment);
+        return new AssignmentDTO(
+                assignment.getAssignmentId(),
+                assignment.getTitle(),
+                assignment.getDueDate(),
+                assignment.getSection().getSecNo()
+        );
     }
 
     /**
-     instructor deletes an assignment for a section.
-     logged in user must be the instructor for the section (assignment 7)
+     * Instructor deletes an assignment for a section.
+     * Logged in user must be the instructor for the section (assignment 7).
      */
     @DeleteMapping("/assignments/{assignmentId}")
     public void deleteAssignment(@PathVariable("assignmentId") int assignmentId) {
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
 
-        // TODO
+        // Delete the assignment
+        assignmentRepository.delete(assignment);
     }
+}
 }
