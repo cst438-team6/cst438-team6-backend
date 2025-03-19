@@ -9,21 +9,21 @@ import java.sql.Date;
 @Entity
 public class Term {
     @Id
-    @Column(name="term_id")
+    @Column(name = "term_id")
     private int termId;
-    @Column(name="tyear")
+    @Column(name = "tyear")
     private int year;
     private String semester;
 
-    @Column(name="add_date")
+    @Column(name = "add_date")
     private Date addDate;
-    @Column(name="add_deadline")
+    @Column(name = "add_deadline")
     private Date addDeadline;
-    @Column(name="drop_deadline")
+    @Column(name = "drop_deadline")
     private Date dropDeadline;
-    @Column(name="start_date")
+    @Column(name = "start_date")
     private Date startDate;
-    @Column(name="end_date")
+    @Column(name = "end_date")
     private Date endDate;
 
     public int getTermId() {

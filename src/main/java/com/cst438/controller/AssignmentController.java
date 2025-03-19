@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,8 +42,10 @@ public class AssignmentController {
                 .map(a -> new AssignmentDTO(
                         a.getAssignmentId(),
                         a.getTitle(),
-                        a.getDueDate(),
-                        section.getSecNo()
+                        String.valueOf(a.getDueDate()),
+                        section.getCourse().getCourseId(),
+                        section.getSecId(),
+                        section.getSectionNo()
                 ))
                 .collect(Collectors.toList());
     }
@@ -57,22 +60,23 @@ public class AssignmentController {
     @PostMapping("/assignments")
     public AssignmentDTO createAssignment(@RequestBody AssignmentDTO dto) {
         // Check if the section exists
-        Section section = sectionRepository.findById(dto.getSectionNo())
+        Section section = sectionRepository.findById(dto.secNo())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
 
         // Create a new assignment entity
         Assignment assignment = new Assignment();
-        assignment.setTitle(dto.getTitle());
-        assignment.setDueDate(dto.getDueDate());
-        assignment.setSection(section);
+        assignment.setTitle(dto.title());
+        assignment.setDueDate(Date.valueOf(dto.dueDate()));
 
         // Save the assignment and return the created AssignmentDTO
         assignment = assignmentRepository.save(assignment);
         return new AssignmentDTO(
                 assignment.getAssignmentId(),
                 assignment.getTitle(),
-                assignment.getDueDate(),
-                assignment.getSection().getSecNo()
+                String.valueOf(assignment.getDueDate()),
+                dto.courseId(),
+                dto.secId(),
+                dto.secNo()
         );
     }
 
@@ -86,20 +90,22 @@ public class AssignmentController {
 
     @PutMapping("/assignments")
     public AssignmentDTO updateAssignment(@RequestBody AssignmentDTO dto) {
-        Assignment assignment = assignmentRepository.findById(dto.getAssignmentId())
+        Assignment assignment = assignmentRepository.findById(dto.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
 
         // Update the title and dueDate
-        assignment.setTitle(dto.getTitle());
-        assignment.setDueDate(dto.getDueDate());
+        assignment.setTitle(dto.title());
+        assignment.setDueDate(Date.valueOf(dto.dueDate()));
 
         // Save the updated assignment and return the updated AssignmentDTO
         assignment = assignmentRepository.save(assignment);
         return new AssignmentDTO(
                 assignment.getAssignmentId(),
                 assignment.getTitle(),
-                assignment.getDueDate(),
-                assignment.getSection().getSecNo()
+                String.valueOf(assignment.getDueDate()),
+                dto.courseId(),
+                dto.secId(),
+                dto.secNo()
         );
     }
 
