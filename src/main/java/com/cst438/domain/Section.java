@@ -98,9 +98,9 @@ public class Section {
         this.instructorEmail = instructorEmail;
     }
 
-//    public List<Enrollment> getEnrollments() {
-//        return enrollments;
-//    }
+    public List<Enrollment> getEnrollments() {
+        return enrollments;
+    }
 
-//    public List<Assignment> getAssignments() { return assignments; }
+    public List<Assignment> getAssignments() { return assignments; }
 }
