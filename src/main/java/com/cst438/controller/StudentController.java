@@ -35,7 +35,7 @@ public class StudentController {
            @RequestParam("year") int year,
            @RequestParam("semester") String semester,
            @RequestParam("studentId") int studentId) {
-
+ 
         List<Enrollment> enrollments = enrollmentRepository.findByYearAndSemesterOrderByCourseId(year, semester, studentId);
         List<EnrollmentDTO> dlist = new ArrayList<>();
         for (Enrollment e : enrollments) {
