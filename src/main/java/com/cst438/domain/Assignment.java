@@ -46,6 +46,8 @@ public class Assignment {
         return this.section;
     }
 
+    public void setSection(Section section) { this.section = section; }
+
     // DONE
     // add additional attributes for title, dueDate
     // add relationship between assignment and section entities
