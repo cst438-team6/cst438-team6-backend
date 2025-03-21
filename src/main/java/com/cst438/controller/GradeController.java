@@ -43,6 +43,7 @@ public class GradeController {
                     g = new Grade();
                     g.setAssignment(a);
                     g.setEnrollment(e);
+                    gradeRepository.save(g);
                 }
                 dto_list1.add(new GradeDTO(
                         g.getGradeId(),

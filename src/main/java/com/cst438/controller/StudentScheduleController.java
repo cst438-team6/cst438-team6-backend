@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -70,8 +71,6 @@ public class StudentScheduleController {
             @PathVariable int sectionNo,
             @RequestParam("studentId") int studentId) {
 
-        // TODO
-
         // check that the Section entity with primary key sectionNo exists
         // check that today is between addDate and addDeadline for the section
         // check that student is not already enrolled into this section
@@ -84,17 +83,15 @@ public class StudentScheduleController {
         if (s == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "section not found " + sectionNo);
         }
-        LocalDate dateNow = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate deadline = LocalDate.parse(s.getTerm().getAddDeadline().toString(), formatter);
-        LocalDate start = LocalDate.parse(s.getTerm().getAddDate().toString(), formatter);
-        if (!dateNow.isBefore(deadline) || !dateNow.isAfter(start)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "today is before the add date or after the deadline " + dateNow.toString());
+        Date now = new Date();
+
+        if (now.before(s.getTerm().getAddDate()) || now.after(s.getTerm().getAddDeadline())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "today is before the add date or after the deadline " + now.toString());
         }
 
         Enrollment e = enrollmentRepository.findEnrollmentBySectionNoAndStudentId(sectionNo, studentId);
         if (e != null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "student " + studentId +
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "student " + studentId +
                     " already enrolled in section " + sectionNo);
         }
 
@@ -135,18 +132,16 @@ public class StudentScheduleController {
     @DeleteMapping("/enrollments/{enrollmentId}")
     public void dropCourse(@PathVariable("enrollmentId") int enrollmentId) {
 
-        // TODO
         // check that today is not after the dropDeadline for section
         Enrollment e = enrollmentRepository.findById(enrollmentId).orElse(null);
         if (e == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "enrollment not found " + enrollmentId);
         }
 
-        LocalDate dateNow = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate deadline = LocalDate.parse(e.getSection().getTerm().getDropDeadline().toString(), formatter);
-        if (!dateNow.isAfter(deadline)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "today is after the deadline " + dateNow.toString());
+        Date now = new Date();
+
+        if (now.after(e.getSection().getTerm().getDropDeadline()) ) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "enrollment can not be deleted due to the drop deadline date");
         } else {
             enrollmentRepository.delete(e);
         }
