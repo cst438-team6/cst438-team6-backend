@@ -9,7 +9,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -43,6 +42,7 @@ public class GradeController {
                     g = new Grade();
                     g.setAssignment(a);
                     g.setEnrollment(e);
+                    gradeRepository.save(g);
                 }
                 dto_list1.add(new GradeDTO(
                         g.getGradeId(),
