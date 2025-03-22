@@ -25,8 +25,6 @@ public class StudentController {
    @Autowired
    SectionRepository sectionRepository;
 
-
-
     // student gets class schedule for a given term
     // user must be student
     // remove studentId request param after login security implemented
