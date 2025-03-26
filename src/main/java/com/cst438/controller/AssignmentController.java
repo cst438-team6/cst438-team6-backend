@@ -44,11 +44,9 @@ public class AssignmentController {
 
     @GetMapping("/sections/{secNo}/assignments")
     public List<AssignmentDTO> getAssignments(@PathVariable("secNo") int secNo) {
-        // Check if the section exists
         Section section = sectionRepository.findById(secNo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
 
-        // Retrieve assignments for the section ordered by due date
         List<Assignment> assignments = assignmentRepository.findBySectionNoOrderByDueDate(secNo);
         return assignments.stream()
                 .map(a -> new AssignmentDTO(
@@ -71,17 +69,17 @@ public class AssignmentController {
 
     @PostMapping("/assignments")
     public AssignmentDTO createAssignment(@RequestBody AssignmentDTO dto) {
-        // Check if the section exists
         Section section = sectionRepository.findById(dto.secNo())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
 
-        // Create a new assignment entity
         Assignment assignment = new Assignment();
         assignment.setTitle(dto.title());
         assignment.setDueDate(Date.valueOf(dto.dueDate()));
 
-        // Save the assignment and return the created AssignmentDTO
+        assignment.setSection(section);
+
         assignment = assignmentRepository.save(assignment);
+
         return new AssignmentDTO(
                 assignment.getAssignmentId(),
                 assignment.getTitle(),
@@ -105,11 +103,9 @@ public class AssignmentController {
         Assignment assignment = assignmentRepository.findById(dto.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
 
-        // Update the title and dueDate
         assignment.setTitle(dto.title());
         assignment.setDueDate(Date.valueOf(dto.dueDate()));
 
-        // Save the updated assignment and return the updated AssignmentDTO
         assignment = assignmentRepository.save(assignment);
         return new AssignmentDTO(
                 assignment.getAssignmentId(),
