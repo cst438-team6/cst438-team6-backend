@@ -18,7 +18,8 @@ public class SectionControllerSystemTest {
     //  for WinOS the file name will be chromedriver.exe
     //  for MacOS the file name will be chromedriver
     public static final String CHROME_DRIVER_FILE_LOCATION =
-            "C:/chromedriver_win32/chromedriver.exe";
+            //"C:/chromedriver_win32/chromedriver.exe";
+            "C:/chromedriver-win64/chromedriver.exe";
 
     //public static final String CHROME_DRIVER_FILE_LOCATION =
     //        "~/chromedriver_macOS/chromedriver";
@@ -45,8 +46,9 @@ public class SectionControllerSystemTest {
 
         // start the driver
         driver = new ChromeDriver(ops);
-
-        driver.get(URL);
+        driver.findElement(By.id("section-title")).click();
+        driver.findElement(By.id("section-title")).sendKeys("Section Title");
+        //driver.get(URL);
         // must have a short wait to allow time for the page to download
         Thread.sleep(SLEEP_DURATION);
 

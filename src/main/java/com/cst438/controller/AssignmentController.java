@@ -1,15 +1,8 @@
 package com.cst438.controller;
 
+import com.cst438.domain.*;
 import com.cst438.dto.AssignmentDTO;
 import com.cst438.dto.AssignmentStudentDTO;
-import com.cst438.domain.Assignment;
-import com.cst438.domain.Section;
-import com.cst438.domain.Enrollment;
-import com.cst438.domain.Grade;
-import com.cst438.domain.AssignmentRepository;
-import com.cst438.domain.EnrollmentRepository;
-import com.cst438.domain.GradeRepository;
-import com.cst438.domain.SectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -44,11 +37,9 @@ public class AssignmentController {
 
     @GetMapping("/sections/{secNo}/assignments")
     public List<AssignmentDTO> getAssignments(@PathVariable("secNo") int secNo) {
-        // Check if the section exists
         Section section = sectionRepository.findById(secNo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
 
-        // Retrieve assignments for the section ordered by due date
         List<Assignment> assignments = assignmentRepository.findBySectionNoOrderByDueDate(secNo);
         return assignments.stream()
                 .map(a -> new AssignmentDTO(
@@ -71,17 +62,23 @@ public class AssignmentController {
 
     @PostMapping("/assignments")
     public AssignmentDTO createAssignment(@RequestBody AssignmentDTO dto) {
-        // Check if the section exists
         Section section = sectionRepository.findById(dto.secNo())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
 
-        // Create a new assignment entity
+        Term term = section.getTerm();
+        Date dueDate = Date.valueOf(dto.dueDate());
+        if (dueDate.before(term.getStartDate()) || dueDate.after(term.getEndDate())){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Due date is outside course date range");
+        }
+
         Assignment assignment = new Assignment();
         assignment.setTitle(dto.title());
-        assignment.setDueDate(Date.valueOf(dto.dueDate()));
+        assignment.setDueDate(dueDate);
 
-        // Save the assignment and return the created AssignmentDTO
+        assignment.setSection(section);
+
         assignment = assignmentRepository.save(assignment);
+
         return new AssignmentDTO(
                 assignment.getAssignmentId(),
                 assignment.getTitle(),
@@ -105,11 +102,9 @@ public class AssignmentController {
         Assignment assignment = assignmentRepository.findById(dto.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
 
-        // Update the title and dueDate
         assignment.setTitle(dto.title());
         assignment.setDueDate(Date.valueOf(dto.dueDate()));
 
-        // Save the updated assignment and return the updated AssignmentDTO
         assignment = assignmentRepository.save(assignment);
         return new AssignmentDTO(
                 assignment.getAssignmentId(),
