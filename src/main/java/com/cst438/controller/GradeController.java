@@ -7,21 +7,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 public class GradeController {
+    @Autowired
+    GradeRepository gradeRepository;
 
     @Autowired
-    private EnrollmentRepository enrollmentRepository;
+    AssignmentRepository assignmentRepository;
 
     @Autowired
-    private GradeRepository gradeRepository;
-
-    @Autowired
-    private AssignmentRepository assignmentRepository;
+    EnrollmentRepository enrollmentRepository;
 
     /**
      * Instructor lists the grades for an assignment for all enrolled students.
@@ -31,32 +30,31 @@ public class GradeController {
      */
     @GetMapping("/assignments/{assignmentId}/grades")
     public List<GradeDTO> getAssignmentGrades(@PathVariable("assignmentId") int assignmentId) {
-        Assignment assignment = assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
-
-        Section section = assignment.getSection();
-        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(section.getSectionNo());
-
-        return enrollments.stream().map(enrollment -> {
-            Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.getEnrollmentId(), assignmentId)
-                    .orElseGet(() -> {
-                        Grade newGrade = new Grade();
-                        newGrade.setEnrollment(enrollment);
-                        newGrade.setAssignment(assignment);
-                        newGrade.setScore(null);
-                        return gradeRepository.save(newGrade);
-                    });
-
-            return new GradeDTO(
-                    grade.getGradeId(),
-                    enrollment.getStudent().getName(),
-                    enrollment.getStudent().getEmail(),
-                    assignment.getTitle(),
-                    assignment.getSection().getCourse().getCourseId(),
-                    assignment.getSection().getSectionNo(),
-                    grade.getScore()
-            );
-        }).collect(Collectors.toList());
+        Assignment a = assignmentRepository.findById(assignmentId).orElse(null);
+        if (a == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "assignment not found " + assignmentId);
+        } else {
+            List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(a.getSection().getSectionNo());
+            List<GradeDTO> dto_list1 = new ArrayList<>();
+            for (Enrollment e : enrollments) {
+                Grade g = gradeRepository.findByEnrollmentIdAndAssignmentId(e.getEnrollmentId(), assignmentId);
+                if (g == null) {
+                    g = new Grade();
+                    g.setAssignment(a);
+                    g.setEnrollment(e);
+                    gradeRepository.save(g);
+                }
+                dto_list1.add(new GradeDTO(
+                        g.getGradeId(),
+                        g.getEnrollment().getStudent().getName(),
+                        g.getEnrollment().getStudent().getEmail(),
+                        g.getEnrollment().getSection().getCourse().getTitle(),
+                        g.getEnrollment().getSection().getCourse().getCourseId(),
+                        g.getEnrollment().getSection().getSecId(),
+                        g.getScore()));
+            }
+            return dto_list1;
+        }
     }
 
     /**
@@ -66,12 +64,14 @@ public class GradeController {
      */
     @PutMapping("/grades")
     public void updateGrades(@RequestBody List<GradeDTO> dlist) {
-        for (GradeDTO dto : dlist) {
-            Grade grade = gradeRepository.findById(dto.gradeId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Grade not found"));
-
-            grade.setScore(dto.score());
-            gradeRepository.save(grade);
+        for (GradeDTO gDTO : dlist) {
+            Grade g = gradeRepository.findById(gDTO.gradeId()).orElse(null);
+            if (g == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "enrollment not found " + gDTO.gradeId());
+            } else {
+                g.setScore(gDTO.score());
+                gradeRepository.save(g);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 package com.cst438.dto;
+
 /*
  * Data Transfer Object for student's score for an assignment
  */
