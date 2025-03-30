@@ -4,6 +4,7 @@ import com.cst438.domain.Enrollment;
 import com.cst438.domain.EnrollmentRepository;
 import com.cst438.dto.EnrollmentDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.bytebuddy.dynamic.scaffold.MethodGraph;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,7 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.http.HttpResponse;
-import java.util.Date;
+import java.util.*;
 
 import static com.cst438.test.utils.TestUtils.asJsonString;
 import static org.junit.jupiter.api.Assertions.*;
@@ -254,6 +255,46 @@ public class EnrollmentControllerUnitTest {
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
         Date now = new Date();
         assertEquals("today is before the add date or after the deadline " + now, response.getErrorMessage());
+    }
+
+    @Test
+    public void updateEnrollmentGrade() throws Exception {
+
+        MockHttpServletResponse response;
+        int sectionNo = 8;
+
+        // issue a http GET request to SpringTestServer
+        // specify MediaType for request and response data
+        // convert Assignment to String data and set as request content
+
+        List<EnrollmentDTO> enrollments = new ArrayList<>();
+
+        response = mvc.perform(
+                        MockMvcRequestBuilders.get("/sections/"+sectionNo+"/enrollments"))
+                .andReturn()
+                .getResponse();
+
+        // ok response returned
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+
+        List<Map> enrollmentMaps = fromJsonString(response.getContentAsString(), List.class);
+        for(Map eMap : enrollmentMaps){
+            eMap.put("grade", "gtest");
+            EnrollmentDTO enrollmentDTO = fromJsonString(asJsonString(eMap),EnrollmentDTO.class);
+            enrollments.add(enrollmentDTO);
+        }
+        // Update grades using updated enrollments list.
+        response = mvc.perform(
+                        MockMvcRequestBuilders
+                                .put("/enrollments")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(asJsonString(enrollments)))
+                .andReturn()
+                .getResponse();
+        // ok response returned
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+
     }
 
     private static String asJsonString(final Object obj) {
