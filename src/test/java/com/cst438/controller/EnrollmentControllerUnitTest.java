@@ -41,36 +41,13 @@ public class EnrollmentControllerUnitTest {
         int sectionNo = 9;
         int studentId = 3;
 
-        // create DTO with data for new enrollment.
-        // the primary key, enrollmentId, is set to 0. it will be
-        // set by the database when the assignment is inserted.
-        EnrollmentDTO enrollment = new EnrollmentDTO(
-                0,
-                null,
-                studentId,
-                null,
-                null,
-              null,
-                 null,
-             1,
-            sectionNo,
-              null,
-                null,
-                null,
-               0,
-                0,
-             null
-        );
+
         // issue a http POST request to SpringTestServer
         // specify MediaType for request and response data
         // convert Assignment to String data and set as request content
 
         response = mvc.perform(
-                        MockMvcRequestBuilders
-                                .post("/enrollments/sections/"+sectionNo+"?studentId="+studentId)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(asJsonString(enrollment)))
+                        MockMvcRequestBuilders.post("/enrollments/sections/"+sectionNo+"?studentId="+studentId))
                 .andReturn()
                 .getResponse();
 
@@ -125,34 +102,13 @@ public class EnrollmentControllerUnitTest {
 
         int sectionNo = 8;
         int studentId = 3;
-        EnrollmentDTO enrollment = new EnrollmentDTO(
-                0,
-                null,
-                studentId,
-                null,
-                null,
-                null,
-                null,
-                1,
-                sectionNo,
-                null,
-                null,
-                null,
-                0,
-                0,
-                null
-        );
+
         // issue a http POST request to SpringTestServer
         // specify MediaType for request and response data
         // convert Assignment to String data and set as request content
-
-
         response = mvc.perform(
                         MockMvcRequestBuilders
-                                .post("/enrollments/sections/"+sectionNo+"?studentId="+studentId)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(asJsonString(enrollment)))
+                                .post("/enrollments/sections/"+sectionNo+"?studentId="+studentId))
                 .andReturn()
                 .getResponse();
 
@@ -173,34 +129,13 @@ public class EnrollmentControllerUnitTest {
 
         int sectionNo = 0;
         int studentId = 3;
-        EnrollmentDTO enrollment = new EnrollmentDTO(
-                0,
-                null,
-                studentId,
-                null,
-                null,
-                null,
-                null,
-                1,
-                sectionNo,
-                null,
-                null,
-                null,
-                0,
-                0,
-                null
-        );
+;
         // issue a http POST request to SpringTestServer
         // specify MediaType for request and response data
         // convert Assignment to String data and set as request content
-
-
         response = mvc.perform(
                         MockMvcRequestBuilders
-                                .post("/enrollments/sections/"+sectionNo+"?studentId="+studentId)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(asJsonString(enrollment)))
+                                .post("/enrollments/sections/"+sectionNo+"?studentId="+studentId))
                 .andReturn()
                 .getResponse();
 
@@ -220,34 +155,13 @@ public class EnrollmentControllerUnitTest {
 
         int sectionNo = 5;
         int studentId = 3;
-        EnrollmentDTO enrollment = new EnrollmentDTO(
-                0,
-                null,
-                studentId,
-                null,
-                null,
-                null,
-                null,
-                1,
-                sectionNo,
-                null,
-                null,
-                null,
-                0,
-                0,
-                null
-        );
+        
         // issue a http POST request to SpringTestServer
         // specify MediaType for request and response data
         // convert Assignment to String data and set as request content
-
-
         response = mvc.perform(
                         MockMvcRequestBuilders
-                                .post("/enrollments/sections/"+sectionNo+"?studentId="+studentId)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(asJsonString(enrollment)))
+                                .post("/enrollments/sections/"+sectionNo+"?studentId="+studentId))
                 .andReturn()
                 .getResponse();
 
