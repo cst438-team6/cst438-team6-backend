@@ -46,9 +46,9 @@ public class SectionControllerSystemTest {
 
         // start the driver
         driver = new ChromeDriver(ops);
-        driver.findElement(By.id("section-title")).click();
-        driver.findElement(By.id("section-title")).sendKeys("Section Title");
-        //driver.get(URL);
+        //driver.findElement(By.id("section-title")).click();
+        //driver.findElement(By.id("section-title")).sendKeys("Section Title");
+        driver.get(URL);
         // must have a short wait to allow time for the page to download
         Thread.sleep(SLEEP_DURATION);
 
