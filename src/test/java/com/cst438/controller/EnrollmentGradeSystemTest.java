@@ -55,7 +55,7 @@ public class EnrollmentGradeSystemTest {
 
         for (WebElement gradeInput : gradeInputs) {
             gradeInput.sendKeys(Keys.chord(Keys.COMMAND, "a", Keys.DELETE)); // Clear existing value
-            gradeInput.sendKeys("A"); // Enter new grade
+            gradeInput.sendKeys("B"); // Enter new grade
         }
 
         driver.findElement(By.id("saveGrades")).click();
@@ -97,7 +97,7 @@ public class EnrollmentGradeSystemTest {
         List<WebElement> gradeInputs = driver.findElements(By.cssSelector("input[type='text']"));
         for (WebElement gradeInput : gradeInputs) {
             String currentGrade = gradeInput.getAttribute("value");
-            assertEquals("A", currentGrade);
+            assertEquals("B", currentGrade);
         }
     }
 
