@@ -2,6 +2,8 @@ package com.cst438.controller;
 
 import com.cst438.domain.*;
 import com.cst438.dto.EnrollmentDTO;
+import com.cst438.service.GradebookServiceProxy;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,9 @@ public class StudentScheduleController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    GradebookServiceProxy gradebookService;
 
 
     /**
@@ -104,7 +109,7 @@ public class StudentScheduleController {
         enrollment.setSection(s);
 
         enrollmentRepository.save(enrollment);
-        return new EnrollmentDTO(
+        EnrollmentDTO enrollmentDTO = new EnrollmentDTO(
                 enrollment.getEnrollmentId(),
                 null,
                 u.getId(),
@@ -121,6 +126,8 @@ public class StudentScheduleController {
                 s.getTerm().getYear(),
                 s.getTerm().getSemester()
         );
+        gradebookService.enrollInCourse(enrollmentDTO);
+        return enrollmentDTO;
     }
 
 
@@ -143,6 +150,7 @@ public class StudentScheduleController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "enrollment can not be deleted due to the drop deadline date");
         } else {
             enrollmentRepository.delete(e);
+            gradebookService.dropCourse(enrollmentId);
         }
     }
 
