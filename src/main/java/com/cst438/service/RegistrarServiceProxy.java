@@ -8,6 +8,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,12 +35,11 @@ public class RegistrarServiceProxy {
     EnrollmentRepository enrollmentRepository;
 
     @RabbitListener(queues = "gradebook_service")
-    public void receiveFromRegistrar(String message) {
-        try {
-            String[] parts = message.split(" ", 2);
+    public void receiveFromRegistrar(String message)  {
+        try{
+            String[] parts =  message.split(" ", 2);
             String action = parts[0];
-
-            // Handle each action directly without using switch statements
+            // (prof's code)SimpleJpaRepository<T, Course> courseRepository;
             if (action.equals("addCourse")) {
                 CourseDTO dto = fromJsonString(parts[1], CourseDTO.class);
                 Course c = new Course();
@@ -52,11 +52,9 @@ public class RegistrarServiceProxy {
             } else if (action.equals("updateCourse")) {
                 CourseDTO dto = fromJsonString(parts[1], CourseDTO.class);
                 Course c = courseRepository.findById(dto.courseId()).orElse(null);
-                if (c != null) { // Check if course exists
-                    c.setTitle(dto.title());
-                    c.setCredits(dto.credits());
-                    courseRepository.save(c);
-                }
+                c.setTitle(dto.title());
+                c.setCredits(dto.credits());
+                courseRepository.save(c);
             } else if (action.equals("addUser")) {
                 UserDTO dto = fromJsonString(parts[1], UserDTO.class);
                 User user = new User();
@@ -70,12 +68,10 @@ public class RegistrarServiceProxy {
             } else if (action.equals("updateUser")) {
                 UserDTO dto = fromJsonString(parts[1], UserDTO.class);
                 User user = userRepository.findById(dto.id()).orElse(null);
-                if (user != null) { // Check if user exists
-                    user.setName(dto.name());
-                    user.setEmail(dto.email());
-                    user.setType(dto.type());
-                    userRepository.save(user);
-                }
+                user.setName(dto.name());
+                user.setEmail(dto.email());
+                user.setType(dto.type());
+                userRepository.save(user);
             } else if (action.equals("addSection")) {
                 SectionDTO dto = fromJsonString(parts[1], SectionDTO.class);
                 Term term = termRepository.findByYearAndSemester(dto.year(), dto.semester());
@@ -86,6 +82,7 @@ public class RegistrarServiceProxy {
                 section.setBuilding(dto.building());
                 section.setRoom(dto.room());
                 section.setTerm(term);
+                section.setCourse(courseRepository.findById(dto.courseId()).orElse(null));
                 section.setInstructor_email(dto.instructorEmail());
                 section.setTimes(dto.times());
                 section.setSecId(dto.secId());
@@ -95,51 +92,42 @@ public class RegistrarServiceProxy {
             } else if (action.equals("updateSection")) {
                 SectionDTO dto = fromJsonString(parts[1], SectionDTO.class);
                 Section section = sectionRepository.findById(dto.secNo()).orElse(null);
-                if (section != null) { // Check if section exists
-                    Term term = termRepository.findByYearAndSemester(dto.year(), dto.semester());
-                    Course c = courseRepository.findById(dto.courseId()).orElse(null);
-                    section.setCourse(c);
-                    section.setSectionNo(dto.secNo());
-                    section.setBuilding(dto.building());
-                    section.setRoom(dto.room());
-                    section.setTerm(term);
-                    section.setInstructor_email(dto.instructorEmail());
-                    section.setTimes(dto.times());
-                    section.setSecId(dto.secId());
-                    sectionRepository.save(section);
-                }
+                Term term = termRepository.findByYearAndSemester(dto.year(), dto.semester());
+                Course c = courseRepository.findById(dto.courseId()).orElse(null);
+                section.setCourse(c);
+                section.setSectionNo(dto.secNo());
+                section.setBuilding(dto.building());
+                section.setRoom(dto.room());
+                section.setTerm(term);
+                section.setCourse(courseRepository.findById(dto.courseId()).orElse(null));
+                section.setInstructor_email(dto.instructorEmail());
+                section.setTimes(dto.times());
+                section.setSecId(dto.secId());
+                sectionRepository.save(section);
             } else if (action.equals("addEnrollment")) {
                 EnrollmentDTO dto = fromJsonString(parts[1], EnrollmentDTO.class);
                 Enrollment enrollment = new Enrollment();
                 enrollment.setEnrollmentId(dto.enrollmentId());
                 User student = userRepository.findById(dto.studentId()).orElse(null);
                 enrollment.setStudent(student);
+                //enrollment.setGrade(dto.grade()); Will be null
                 Section section = sectionRepository.findById(dto.sectionId()).orElse(null);
                 enrollment.setSection(section);
                 enrollmentRepository.save(enrollment);
             } else if (action.equals("deleteEnrollment")) {
-                enrollmentRepository.deleteById(Integer.parseInt(parts[1]));
-            } else if (action.equals("updateEnrollment")) {
-                EnrollmentDTO dto = fromJsonString(parts[1], EnrollmentDTO.class);
-                Enrollment enrollment = enrollmentRepository.findById(dto.enrollmentId()).orElse(null);
-                if (enrollment != null) { // Check if enrollment exists
-                    enrollment.setGrade(dto.grade()); // Update the final grade
-                    enrollmentRepository.save(enrollment);
-                    // Send a message to the registrar service about the updated enrollment
-                    sendMessage(asJsonString(dto));
-                }
-            } else {
-                System.out.println("Invalid action: " + action);
+                sectionRepository.deleteById(Integer.parseInt(parts[1]));
+            } else{
+                System.out.println("Invalid action");
             }
         } catch (Exception e) {
-            System.out.println("Exception in receiveFromRegistrar: " + e.getMessage());
+            System.out.println("Exception in recieveFromRegistrar " + e.getMessage());
         }
     }
+
 
     public void sendMessage(String s) {
         rabbitTemplate.convertAndSend(registrarServiceQueue.getName(), s);
     }
-
     private static String asJsonString(final Object obj) {
         try {
             return new ObjectMapper().writeValueAsString(obj);
@@ -147,8 +135,7 @@ public class RegistrarServiceProxy {
             throw new RuntimeException(e);
         }
     }
-
-    private static <T> T fromJsonString(String str, Class<T> valueType) {
+    private static <T> T  fromJsonString(String str, Class<T> valueType ) {
         try {
             return new ObjectMapper().readValue(str, valueType);
         } catch (Exception e) {
