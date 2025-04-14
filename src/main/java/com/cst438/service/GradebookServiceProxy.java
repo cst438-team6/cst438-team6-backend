@@ -36,7 +36,7 @@ public class GradebookServiceProxy {
     }
 
     public void updateCourse(CourseDTO course){
-        sendMessage("updateCourse"+asJsonString(course));
+        sendMessage("updateCourse "+asJsonString(course));
     }
 
     public void deleteCourse(String courseId){
