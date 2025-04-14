@@ -136,7 +136,7 @@ public class RegistrarServiceProxy {
         }
     }
 
-    private void sendMessage(String s) {
+    public void sendMessage(String s) {
         rabbitTemplate.convertAndSend(registrarServiceQueue.getName(), s);
     }
 

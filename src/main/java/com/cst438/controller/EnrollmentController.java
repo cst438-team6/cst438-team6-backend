@@ -79,7 +79,7 @@ public class EnrollmentController {
             enrollmentRepository.save(enrollment);
 
             // Send a message to the registrar service about the updated enrollment
-            registrarServiceProxy.sendMessage(asJsonString(dto));
+            registrarServiceProxy.sendMessage("updateEnrollment " +asJsonString(dto));
         }
     }
 
