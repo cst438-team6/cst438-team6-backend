@@ -3,6 +3,8 @@ package com.cst438.controller;
 import com.cst438.domain.Enrollment;
 import com.cst438.domain.EnrollmentRepository;
 import com.cst438.dto.EnrollmentDTO;
+import com.cst438.service.RegistrarServiceProxy; // Import the RegistrarServiceProxy
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,9 @@ public class EnrollmentController {
 
     @Autowired
     private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private RegistrarServiceProxy registrarServiceProxy; // Inject the RegistrarServiceProxy
 
     /**
      * Instructor gets list of enrollments for a section.
@@ -72,6 +77,17 @@ public class EnrollmentController {
 
             enrollment.setGrade(dto.grade());
             enrollmentRepository.save(enrollment);
+
+            // Send a message to the registrar service about the updated enrollment
+            registrarServiceProxy.sendMessage(asJsonString(dto));
+        }
+    }
+
+    private String asJsonString(final EnrollmentDTO obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
