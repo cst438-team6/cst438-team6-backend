@@ -8,6 +8,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -86,6 +87,7 @@ public class RegistrarServiceProxy {
                 section.setBuilding(dto.building());
                 section.setRoom(dto.room());
                 section.setTerm(term);
+                section.setCourse(courseRepository.findById(dto.courseId()).orElse(null));
                 section.setInstructor_email(dto.instructorEmail());
                 section.setTimes(dto.times());
                 section.setSecId(dto.secId());
@@ -114,6 +116,7 @@ public class RegistrarServiceProxy {
                 enrollment.setEnrollmentId(dto.enrollmentId());
                 User student = userRepository.findById(dto.studentId()).orElse(null);
                 enrollment.setStudent(student);
+                //enrollment.setGrade(dto.grade()); Will be null
                 Section section = sectionRepository.findById(dto.sectionId()).orElse(null);
                 enrollment.setSection(section);
                 enrollmentRepository.save(enrollment);
