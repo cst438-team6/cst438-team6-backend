@@ -65,6 +65,7 @@ public class RegistrarServiceProxy {
                 user.setName(dto.name());
                 user.setEmail(dto.email());
                 user.setType(dto.type());
+                user.setPassword("dummy");
                 userRepository.save(user);
             } else if (action.equals("deleteUser")) {
                 userRepository.deleteById(Integer.parseInt(parts[1]));
