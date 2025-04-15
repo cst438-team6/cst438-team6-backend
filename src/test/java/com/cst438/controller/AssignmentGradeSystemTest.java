@@ -78,7 +78,7 @@ public class AssignmentGradeSystemTest {
                 // Clear any existing value in the input field
                 gradeInput.sendKeys(Keys.chord(Keys.COMMAND, "a", Keys.DELETE));
                 // Enter the new grade value of 90
-                gradeInput.sendKeys("90");
+                gradeInput.sendKeys("91");
             }
 
             // Click the save button to save the grade
@@ -143,7 +143,7 @@ public class AssignmentGradeSystemTest {
                 // Get the current value of the grade input
                 String currentGrade = gradeInput.getAttribute("value");
                 // Assert that the grade is now set to 90
-                assertEquals("90", currentGrade);
+                assertEquals("91", currentGrade);
             }
         }
     }

@@ -28,6 +28,7 @@ public class SectionControllerSystemTest {
     public static final int SLEEP_DURATION = 1000; // 1 second.
 
 
+
     // add selenium dependency to pom.xml
 
     // these tests assumes that test data does NOT contain any
