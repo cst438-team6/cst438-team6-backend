@@ -79,7 +79,7 @@ public class GradebookServiceProxy {
     public void receiveFromGradebook(String message)  {
         try {
             System.out.println("Received From Gradebook Service " + message);
-            String[] parts = message.split(",", 2);
+            String[] parts = message.split(" ", 2);
             if (parts[0].equals("updateEnrollment")) {
                 EnrollmentDTO edto = fromJsonString(parts[1], EnrollmentDTO.class);
                 Enrollment e = enrollmentRepository.findById(edto.enrollmentId()).orElse(null);
