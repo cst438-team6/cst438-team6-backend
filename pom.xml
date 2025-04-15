@@ -69,7 +69,6 @@
             <scope>runtime</scope>
         </dependency>
         <!-- end rabbitmq -->
-
     </dependencies>
 
     <build>
