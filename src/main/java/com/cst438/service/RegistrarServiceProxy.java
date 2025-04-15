@@ -62,6 +62,7 @@ public class RegistrarServiceProxy {
                 user.setName(dto.name());
                 user.setEmail(dto.email());
                 user.setType(dto.type());
+                user.setPassword("dummy");
                 userRepository.save(user);
             } else if (action.equals("deleteUser")) {
                 userRepository.deleteById(Integer.parseInt(parts[1]));
@@ -115,7 +116,8 @@ public class RegistrarServiceProxy {
                 enrollment.setSection(section);
                 enrollmentRepository.save(enrollment);
             } else if (action.equals("deleteEnrollment")) {
-                sectionRepository.deleteById(Integer.parseInt(parts[1]));
+                System.out.println("delete enrollment"+parts[1]);
+                enrollmentRepository.deleteById(Integer.parseInt(parts[1]));
             } else{
                 System.out.println("Invalid action");
             }
