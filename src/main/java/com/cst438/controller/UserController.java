@@ -30,7 +30,6 @@ public class UserController {
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     public List<UserDTO> findAllUsers( ) {
-
         List<User> users = userRepository.findAllByOrderByIdAsc();
         List<UserDTO> userDTO_list = new ArrayList<>();
         for (User u: users) {
