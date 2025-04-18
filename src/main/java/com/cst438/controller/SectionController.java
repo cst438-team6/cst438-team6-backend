@@ -123,6 +123,7 @@ public class SectionController {
 
     // get Sections with query parms courseId, year, semester
     @GetMapping("/courses/{courseId}/sections")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     public List<SectionDTO> getSections(
             @PathVariable("courseId") String courseId,
             @RequestParam("year") int year ,
@@ -191,6 +192,7 @@ public class SectionController {
     }
 
     @GetMapping("/sections/open")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_STUDENT')")
     public List<SectionDTO> getOpenSectionsForEnrollment() {
 
         List<Section> sections = sectionRepository.findByOpenOrderByCourseIdSectionId();

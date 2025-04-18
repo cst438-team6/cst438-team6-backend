@@ -5,6 +5,7 @@ import com.cst438.domain.EnrollmentRepository;
 import com.cst438.dto.EnrollmentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,6 +25,7 @@ public class EnrollmentController {
      * The logged-in user must be the instructor for the section.
      */
     @GetMapping("/sections/{sectionNo}/enrollments")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     public List<EnrollmentDTO> getEnrollments(@PathVariable("sectionNo") int sectionNo) {
         List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo);
 
@@ -64,6 +66,7 @@ public class EnrollmentController {
      * The logged-in user must be the instructor for the section.
      */
     @PutMapping("/enrollments")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     public void updateEnrollmentGrade(@RequestBody List<EnrollmentDTO> dlist) {
         for (EnrollmentDTO dto : dlist) {
             Enrollment enrollment = enrollmentRepository.findById(dto.enrollmentId())

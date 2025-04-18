@@ -4,6 +4,7 @@ import com.cst438.domain.*;
 import com.cst438.dto.GradeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -29,6 +30,7 @@ public class GradeController {
      * Logged-in user must be the instructor for the section.
      */
     @GetMapping("/assignments/{assignmentId}/grades")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     public List<GradeDTO> getAssignmentGrades(@PathVariable("assignmentId") int assignmentId) {
         Assignment a = assignmentRepository.findById(assignmentId).orElse(null);
         if (a == null) {
@@ -63,6 +65,7 @@ public class GradeController {
      * Logged-in user must be the instructor for the section.
      */
     @PutMapping("/grades")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     public void updateGrades(@RequestBody List<GradeDTO> dlist) {
         for (GradeDTO gDTO : dlist) {
             Grade g = gradeRepository.findById(gDTO.gradeId()).orElse(null);

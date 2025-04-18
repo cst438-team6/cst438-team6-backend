@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,11 +30,14 @@ public class StudentController {
     // user must be student
     // remove studentId request param after login security implemented
    @GetMapping("/enrollments")
+   @PreAuthorize("hasAuthority('SCOPE_ROLE_STUDENT')")
    public List<EnrollmentDTO> getSchedule(
            @RequestParam("year") int year,
            @RequestParam("semester") String semester,
-           @RequestParam("studentId") int studentId) {
- 
+           //@RequestParam("studentId") int studentId) {
+           Principal principal){
+        User student = userRepository.findByEmail(principal.getName());
+        int studentId = student.getId();
         List<Enrollment> enrollments = enrollmentRepository.findByYearAndSemesterOrderByCourseId(year, semester, studentId);
         List<EnrollmentDTO> dlist = new ArrayList<>();
         for (Enrollment e : enrollments) {

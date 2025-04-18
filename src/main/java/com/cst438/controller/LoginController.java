@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cst438.service.TokenService;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 public class LoginController {
 	
 	@Autowired
