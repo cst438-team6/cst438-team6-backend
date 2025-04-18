@@ -4,9 +4,11 @@ import com.cst438.domain.*;
 import com.cst438.dto.EnrollmentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,11 +34,14 @@ public class StudentScheduleController {
      * example URL  /transcript?studentId=19803
      */
     @GetMapping("/transcripts")
-    public List<EnrollmentDTO> getTranscript(@RequestParam("studentId") int studentId) {
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_STUDENT')")
+    //public List<EnrollmentDTO> getTranscript(@RequestParam("studentId") int studentId) {
+    public List<EnrollmentDTO> getTranscript(Principal principal) {
+        User student = userRepository.findByEmail(principal.getName());
         // list course_id, sec_id, title, credit, grade
         // hint: use enrollment repository method findEnrollmentByStudentIdOrderByTermId
         // remove the following line when done
-        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(studentId);
+        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(student.getId());
         List<EnrollmentDTO> eDTOList = new ArrayList<>();
         for (Enrollment e : enrollments) {
             eDTOList.add(new EnrollmentDTO(
@@ -66,16 +71,19 @@ public class StudentScheduleController {
      * logged in user must be the student (assignment 7)
      */
     @PostMapping("/enrollments/sections/{sectionNo}")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_STUDENT')")
     public EnrollmentDTO addCourse(
             @PathVariable int sectionNo,
-            @RequestParam("studentId") int studentId) {
+            //@RequestParam("studentId") int studentId) {
+            Principal principal) {
 
         // check that the Section entity with primary key sectionNo exists
         // check that today is between addDate and addDeadline for the section
         // check that student is not already enrolled into this section
         // create a new enrollment entity and save.  The enrollment grade will
         // be NULL until instructor enters final grades for the course.
-
+        User student = userRepository.findByEmail(principal.getName());
+        int studentId = student.getId();
         // remove the following line when done.
 
         Section s = sectionRepository.findById(sectionNo).orElse(null);
@@ -129,6 +137,7 @@ public class StudentScheduleController {
      * logged in user must be the student (assignment 7)
      */
     @DeleteMapping("/enrollments/{enrollmentId}")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_STUDENT')")
     public void dropCourse(@PathVariable("enrollmentId") int enrollmentId) {
 
         // check that today is not after the dropDeadline for section

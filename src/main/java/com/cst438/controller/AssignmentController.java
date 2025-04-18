@@ -7,7 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import java.security.Principal;
 import java.sql.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,9 @@ public class AssignmentController {
     @Autowired
     private EnrollmentRepository enrollmentRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     /**
      * Instructor lists assignments for a section.
      * Assignment data is returned ordered by due date.
@@ -36,6 +40,7 @@ public class AssignmentController {
      */
 
     @GetMapping("/sections/{secNo}/assignments")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     public List<AssignmentDTO> getAssignments(@PathVariable("secNo") int secNo) {
         Section section = sectionRepository.findById(secNo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
@@ -61,6 +66,7 @@ public class AssignmentController {
 
 
     @PostMapping("/assignments")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     public AssignmentDTO createAssignment(@RequestBody AssignmentDTO dto) {
         Section section = sectionRepository.findById(dto.secNo())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found"));
@@ -98,6 +104,7 @@ public class AssignmentController {
 
 
     @PutMapping("/assignments")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     public AssignmentDTO updateAssignment(@RequestBody AssignmentDTO dto) {
         Assignment assignment = assignmentRepository.findById(dto.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
@@ -122,6 +129,7 @@ public class AssignmentController {
      * Logged in user must be the instructor for the section (assignment 7).
      */
     @DeleteMapping("/assignments/{assignmentId}")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     public void deleteAssignment(@PathVariable("assignmentId") int assignmentId) {
         Assignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
@@ -133,13 +141,16 @@ public class AssignmentController {
     // student lists their assignments/grades for an enrollment ordered by due date
     // student must be enrolled in the section
     @GetMapping("/assignments")
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_STUDENT')")
     public List<AssignmentStudentDTO> getStudentAssignments(
-            @RequestParam("studentId") int studentId,
+            //@RequestParam("studentId") int studentId,
+            Principal principal,
             @RequestParam("year") int year,
             @RequestParam("semester") String semester) {
 
         // check that this enrollment is for the logged in user student.
-
+        User student = userRepository.findByEmail(principal.getName());
+        int studentId = student.getId();
         List<AssignmentStudentDTO> dlist = new ArrayList<>();
         List<Assignment> alist = assignmentRepository.findByStudentIdAndYearAndSemesterOrderByDueDate(studentId, year, semester);
         for (Assignment a : alist) {
